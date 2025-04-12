@@ -91,6 +91,7 @@ GameObject:
   - component: {fileID: 7073263133084824073}
   - component: {fileID: 7701873895824011329}
   - component: {fileID: 4790570835114904832}
+  - component: {fileID: 5511645878114373451}
   m_Layer: 0
   m_Name: Car Model
   m_TagString: Untagged
@@ -164,6 +165,26 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.39232594, y: 0.28941867, z: 0.77091646}
   m_Center: {x: -0.0024113953, y: 0.16720106, z: 0.006028548}
+--- !u!114 &5511645878114373451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 476764266804732117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2adb4baa4e850924e8cdb2504a02df33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  waypointsParent: {fileID: 0}
+  lookAheadDistance: 5
+  maxSpeed: 10
+  frontLeftCollider: {fileID: 2089224140434541166}
+  frontRightCollider: {fileID: 6925753521543995786}
+  torque: 0
+  wheelBase: 2.5
+  steeringAngle: 0
 --- !u!1 &2528594873691647626
 GameObject:
   m_ObjectHideFlags: 0
