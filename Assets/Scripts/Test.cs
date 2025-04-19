@@ -2,6 +2,10 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using Unity.Mathematics;
+using UnityEngine.Scripting.APIUpdating;
+using System.Threading;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
+using UnityEditor;
 
 public class Test : MonoBehaviour
 {
@@ -33,6 +37,7 @@ public class Test : MonoBehaviour
     public float steeringSmoothness = 1f;
     public float maxSteeringAngle = 30f;
     public float wheelBase = 2.5f; // Araç dingil mesafesi
+    public float brakeTorque = 10f;
 
 
     [Header("PID Ayarları")]
@@ -49,6 +54,9 @@ public class Test : MonoBehaviour
     public float currentSteerAngle = 0f;
     public float pidOutput;
     
+    private bool isRedLight = false;
+    private float redLightCountDown = 5.0f;
+    private bool canPassRedLight = false;
 
     void Start()
     {
@@ -74,13 +82,36 @@ public class Test : MonoBehaviour
        
         
         pidOutput = PIDSteering(currentSteerAngle, frontLeftCollider.steerAngle, Time.deltaTime);
+        
+        if(targetIndex == 20 && canPassRedLight == false)
+        {
+            Debug.Log("red light");
+            isRedLight = true;
+        }
+
+
         if(Mathf.Abs(pidOutput) >= 25.0f){
             isTurning = true;
         }
         else{
             isTurning = false;
         }
-       
+
+        if(isRedLight)
+        {
+            if(redLightCountDown > 0f) {
+                redLightCountDown -= Time.deltaTime;
+                Debug.Log("Kalan süer: " + Mathf.CeilToInt(redLightCountDown));
+            }
+            else {
+                redLightCountDown = 3.0f;
+                canPassRedLight = true;
+                isRedLight = false;
+                Debug.Log("Green Light: true canPass false redLight");
+            }
+
+        }
+        
 
         MoveCar(torque, isTurning);
         ApplySteering(pidOutput); 
@@ -101,7 +132,8 @@ public class Test : MonoBehaviour
 
             if (distance < lookAheadDistance)
             {
-                Debug.Log(targetIndex);
+                //Debug.Log(targetIndex);
+                // hello
                 targetIndex++;
             }
             
@@ -132,7 +164,7 @@ public class Test : MonoBehaviour
         float dy = next.y - current.y;
         float dx = next.x - current.x;
         float angle = Mathf.Atan(dy/dx);
-        Debug.Log(Mathf.Abs(angle));
+        // Debug.Log(Mathf.Abs(angle));
         return Mathf.Abs(angle) >= 1;
 
 
@@ -148,17 +180,27 @@ public class Test : MonoBehaviour
 
     void MoveCar(float torque, bool applyBrake)
     {
-    
-        if(isTurning){
-            rearLeftCollider.motorTorque = torque/2;
-            rearRightCollider.motorTorque = torque/2;        
+        if(isRedLight == true)
+        {
+            Debug.Log("braking");
+            rearLeftCollider.brakeTorque = brakeTorque;
+            rearRightCollider.brakeTorque = brakeTorque;       
         }
         else {
-            
-            rearLeftCollider.motorTorque = torque;
-            rearRightCollider.motorTorque = torque;        
-        
+            Debug.Log("araç gidiyor");
+            if(isTurning){
+                rearLeftCollider.motorTorque = torque/2;
+                rearRightCollider.motorTorque = torque/2;        
+            }
+            else {
+                Debug.Log("Torque: " + torque);
+                rearLeftCollider.brakeTorque = 0f;
+                rearRightCollider.brakeTorque = 0f;
+                rearLeftCollider.motorTorque = torque;
+                rearRightCollider.motorTorque = torque;
+            }
         }
+        
     }
 
     void UpdateWheelRotation(WheelCollider collider, Transform wheelMesh)
